@@ -45,7 +45,11 @@ class RedisPool extends MagicPool
         if($this->getConfig()->getAutoPing() > 0 && (time() - $redis->__lastUseTime > $this->getConfig()->getAutoPing())){
             try{
                 //执行一个ping
-                $redis->ping();
+                if ($redis instanceof RedisCluster){
+                    $redis->pingAll();
+                }else{
+                    $redis->ping();
+                }
                 //标记使用时间，避免被再次gc
                 $redis->__lastUseTime = time();
                 return true;
